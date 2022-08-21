@@ -40,6 +40,7 @@ Deep learning systems would be a good methodological choice for this problem due
 
 ## Directory Structure
 
+```bash
 C-NMC_Leukemia
 |__ training_data
     |______ fold_0
@@ -51,7 +52,7 @@ C-NMC_Leukemia
     |______ fold_2
         |______ all: []
         |______ hem: []
-        
+```
 ## Personal Takeaways
 
 This project example has been insightful in the contruction of deep learning computer vision modeling. I found the biggest trade offs that were under consideraition in model decision-making and optimization was accuracy vs. time. Although complex models can produce more accurate results, the complexity of the model is computationally taxing and can cause extremely long wait times. This friction may obviously be resolved through upgraded hardware or cloud computing, but that results in higher operating costs for users.
