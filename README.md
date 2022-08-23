@@ -28,7 +28,7 @@ Deep learning systems would be a good methodological choice for this problem due
 
 1. VGG16
 
-The first model was a transfer learning model utilizing the VGG16 network architecture. The model accuracy converged at 0.5000 with 5 epochs. A binary classification model with 50% accuracy has very poor performance because there is an equal chance of guessing correct when there are only two categories. The loss was too high for the model and made it incapable of performing.
+The first model was a transfer learning model utilizing the VGG16 network architecture. The model accuracy converged at 0.5000 with 5 epochs. A binary classification model with 50% accuracy has very poor performance because there is an equal chance of guessing correct when there are only two categories. The loss was not sufficient for this model and made it incapable of performing.
 
 2. CNN using 32 filters with 4 layers
 
@@ -36,13 +36,15 @@ This model convolved the image data using a filter size of 32 and alternated bet
 
 3. CNN with smaller filters than Model #2
 
-Using the same network architecture as the previous model, this time with size 16 filters. This model performed worse but obvious ran faster epochs. With 30 epochs, the model accuracy was 0.7663. Utilizing the graphic showing the learning curve of the training/validation accuracy, 15 epochs would've been the number for model fitting.
+Using the same network architecture as the previous model, this time with size 16 filters. This model performed worse but obvious ran faster epochs. With 30 epochs, the model accuracy was 0.7663. Utilizing the graphic showing the learning curve of the training/validation accuracy, ~20 epochs would've been the number for model fitting. Once reran with 20 epochs, the accuracy was 0.7794.
 
 4. Another CNN; simplified with dropout 
 
-In this model, we use three convolutional layers of 32, 16, and 8 filters respectively. I set the learning_rate=.0001 and a dropout function (0.2) is utilized in the second layer. This model's accurac
+In this model, we use three convolutional layers of 32, 16, and 8 filters respectively. I set the learning_rate=.0001 and a dropout function (0.2) is utilized in the second layer. This model's accuracy was 0.7451.
 
 5. EfficientNetB3
+
+In this transfer learning model utilizing EfficientNetB3, the accuracy was 0.9804. This model had extremely high loss and is prone to overfitting.
 
 # More Information
 
@@ -63,4 +65,4 @@ C-NMC_Leukemia
 ```
 ## Personal Takeaways
 
-This project example has been insightful in the contruction of deep learning computer vision modeling. I found the biggest trade offs that were under consideraition in model decision-making and optimization was accuracy vs. time. Although complex models can produce more accurate results, the complexity of the model is computationally taxing and can cause extremely long wait times. This friction may obviously be resolved through upgraded hardware or cloud computing, but that results in higher operating costs for users.
+This project example has been insightful in the contruction of deep learning computer vision modeling. I found the biggest trade offs that were under consideraition in model decision-making and optimization was accuracy vs. time. Although complex models can produce more accurate results, the complexity of the model is computationally taxing and can cause extremely long wait times. This friction may obviously be resolved through upgraded hardware or cloud computing, but that results in higher operating costs for users. This project served as an opportunity test-drive various network architectures and features of neural networks to compare output, construction, and efficiency. Many of the models have infinite ways to be approached for improvmenets.
