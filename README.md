@@ -44,7 +44,7 @@ In this model, we use three convolutional layers of 32, 16, and 8 filters respec
 
 5. EfficientNetB3
 
-In this transfer learning model utilizing EfficientNetB3, the accuracy was 0.9804. This model had extremely high loss and is prone to overfitting.
+In this transfer learning model utilizing EfficientNetB3, the accuracy was 0.9804. The EfficientNet architecture scales the model in a few ways to find the most optimal model to process the inputs: width scaling, depth scaling, and resolution scaling. This is how it remains lightweight; by reducing parameters depending on the input images. However, this model had extremely high loss and is prone to overfitting.
 
 # More Information
 
