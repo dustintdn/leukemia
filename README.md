@@ -1,68 +1,132 @@
-# Image Classification of Leukemia Red Blood Cells using Neural Networks
+# Leukemia Blood Cell Classification
 
-## Scope/Research Question
+A deep learning project exploring neural network architectures for classifying microscopic blood cell images to distinguish healthy cells from leukemia blasts.
 
-In this repository, I will create a model for image classification of blood cells to distinguish healthy blood cells and leukemia-infected blood cells. The goal is to automate leukemia detection and validation in cancer diagnosis using deep learning. The reason why this task is important and still needs improvement is because it is still difficult to identify leukemic blasts caused by Acute Lymphoblastic Leukemia (ALL). The purpose of this tool is to assist oncologists with their often qualitative evaluation of cancer disease.
+## Motivation
 
-## Data Description
+Acute Lymphoblastic Leukemia (ALL) diagnosis still relies heavily on qualitative evaluation by oncologists examining blood smears. Identifying leukemic blasts remains challenging, and patients often don't seek testing until symptoms appear. 
 
-The project dataset can be found here: https://www.kaggle.com/datasets/andrewmvd/leukemia-classification. The dataset contains 15,135 microscopic stained blood cell images from 118 patients. They are labeled as either Normal Cell (HEM) or Leukemia Blast (ALL). Of data provided, I will be sampling 1,000 images for training, validation, and testing. 
+This project explores whether deep learning could help flag potential leukemia from routine blood tests, potentially enabling earlier detection—especially important for children where ALL is most common. While this uses a publicly available dataset rather than clinical data, it serves as a proof-of-concept for automated blood cell classification.
 
-## Why utilize deep learning?
+## Dataset
 
-Deep learning systems would be a good methodological choice for this problem due to the current qualitative evaluation in cancer diagnosis in oncology. Patients are often not 'looking' to see if they have cancer and will not go to doctor until they are experiencing symptoms. If there were to be a way to automatically flag potential leukemia blasts from routine check-up lab tests (blood samples) by incorporating deep learning systems, it would help a lot of children identify ALL during early onset. Although this is a trivial dataset found off of kaggle, the development of the DL blood cell classification model could contribute to the improvement to problems identified in question #1. 
+**Source:** [Kaggle - Leukemia Classification](https://www.kaggle.com/datasets/andrewmvd/leukemia-classification)
 
-## Network frameworks
+The C-NMC dataset contains 15,135 microscopic stained blood cell images from 118 patients with two classes:
+- **ALL** - Leukemia Blast cells
+- **HEM** - Normal (Healthy) cells
 
-1. VGG16
+For this exploration, I sampled 1,000 images for training, validation, and testing.
 
-2. CNN using 32 filters with 4 layers
+```
+data/
+└── C-NMC_Leukemia/
+    └── training_data/
+        ├── fold_0/
+        │   ├── all/
+        │   └── hem/
+        ├── fold_1/
+        │   ├── all/
+        │   └── hem/
+        └── fold_2/
+            ├── all/
+            └── hem/
+```
 
-3. CNN with smaller filters than Model #2
+## Model Experiments & Results
 
-4. Another CNN; simplified with dropout function
+I tested five different architectures to understand tradeoffs between complexity, accuracy, and training time:
 
-5. EfficientNetB3
+| Model | Architecture | Epochs | Accuracy | Notes |
+|-------|-------------|--------|----------|-------|
+| VGG16 | Transfer Learning | 5 | 50.0% | Failed to learn |
+| CNN-32 | 4 layers, 32 filters | 20 | 79.3% | Overtrained |
+| CNN-16 | 4 layers, 16 filters | 20 | 77.9% | Faster, similar results |
+| CNN-Dropout | 3 layers + dropout | - | 74.5% | Regularization hurt performance |
+| EfficientNetB3 | Transfer Learning | - | **98.0%** | Best accuracy, high loss |
 
-## Results / Critique Commentary
+### Detailed Analysis
 
-1. VGG16
+**VGG16 (Transfer Learning)**  
+The model converged at exactly 50% accuracy—essentially random guessing for binary classification. The pre-trained weights didn't transfer well to this domain without fine-tuning.
 
-The first model was a transfer learning model utilizing the VGG16 network architecture. The model accuracy converged at 0.5000 with 5 epochs. A binary classification model with 50% accuracy has very poor performance because there is an equal chance of guessing correct when there are only two categories. The loss was not sufficient for this model and made it incapable of performing.
+**CNN with 32 Filters**  
+Built a custom CNN with filter size 32, alternating between kernel sizes 3 and 1. Accuracy reached ~76% by epoch 1, ~77% by epoch 3, and didn't break 79% until epoch 17. In hindsight, 5-10 epochs would have been sufficient—the extra training risked overfitting without meaningful gains.
 
-2. CNN (32x32)
+**CNN with 16 Filters**  
+Same architecture with smaller filters. Ran faster but performed slightly worse at 76.6% with 30 epochs. Learning curves suggested ~20 epochs was optimal, which achieved 77.9%.
 
-This model convolved the image data using a filter size of 32 and alternated between kernal size 3 and 1 in each layer. The accuracy for this model was 0.7925. The performance of this model was an improvement from my VGG16 model, but the model used 20 epochs which could be causing overfitting. In the first epoch, model accuracy was ~0.76, in the third epoch accuracy was ~ 0.77, by the 10th epochs accuracy was ~0.78, and we did not break 0.79 accuracy until the 17th epoch. In terms of cost/time effectiveness, 5-10 epochs would've been more than enough to obtain similar accuracy and avoid the risk of overfitting. 
+**CNN with Dropout**  
+Three convolutional layers (32→16→8 filters) with dropout (0.2) and learning rate 0.0001. The regularization actually hurt performance here, likely because the model was already underfitting.
 
-3. CNN (16x16)
+**EfficientNetB3 (Transfer Learning)**  
+By far the best performer at 98% accuracy. EfficientNet's compound scaling (width, depth, resolution) adapts well to the input images while staying lightweight. However, the high loss suggests overfitting—more regularization or data augmentation would help in production.
 
-Using the same network architecture as the previous model, this time with size 16 filters. This model performed worse but obvious ran faster epochs. With 30 epochs, the model accuracy was 0.7663. Utilizing the graphic showing the learning curve of the training/validation accuracy, ~20 epochs would've been the number for model fitting. Once reran with 20 epochs, the accuracy was 0.7794.
+## Key Takeaways
 
-4. CNN with dropout 
+1. **Accuracy vs. Compute Time** — Complex models can achieve better accuracy but at significant computational cost. For this dataset, a simple CNN achieved 79% accuracy in minutes while EfficientNet needed longer but hit 98%.
 
-In this model, we use three convolutional layers of 32, 16, and 8 filters respectively. I set the learning_rate=.0001 and a dropout function (0.2) is utilized in the second layer. This model's accuracy was 0.7451.
+2. **Transfer Learning is Tricky** — VGG16 failed completely while EfficientNetB3 excelled. Architecture matters more than just using pre-trained weights.
 
-5. EfficientNetB3
+3. **More Epochs ≠ Better** — Most of my models showed diminishing returns after 5-10 epochs. Monitoring validation loss is crucial.
 
-In this transfer learning model utilizing EfficientNetB3, the accuracy was 0.9804. The EfficientNet architecture scales the model in a few ways to find the most optimal model to process the inputs: width scaling, depth scaling, and resolution scaling. This is how it remains lightweight; by reducing parameters depending on the input images. However, this model had extremely high loss and is prone to overfitting.
+4. **Regularization Isn't Always Helpful** — Dropout hurt performance on the smaller CNN, suggesting the model was already struggling to fit the data.
 
-# More Information
+## Project Structure
 
-## Directory Structure
+```
+leukemia-classification/
+├── README.md
+├── requirements.txt
+├── notebooks/
+│   └── model_exploration.ipynb    # All experiments and analysis
+├── src/
+│   ├── data_loader.py             # Data loading utilities
+│   └── models.py                  # Model architectures
+└── models/                        # Saved model weights (gitignored)
+```
+
+## Setup
 
 ```bash
-C-NMC_Leukemia
-|__ training_data
-    |______ fold_0
-        |______ all: []
-        |______ hem: []
-    |______ fold_1
-        |______ all: []
-        |______ hem: []
-    |______ fold_2
-        |______ all: []
-        |______ hem: []
-```
-## Personal Takeaways
+# Clone and setup
+git clone https://github.com/dustintdn/leukemia-classification.git
+cd leukemia-classification
 
-This project example has been insightful in the contruction of deep learning computer vision modeling. I found the biggest trade offs that were under consideraition in model decision-making and optimization was accuracy vs. time. Although complex models can produce more accurate results, the complexity of the model is computationally taxing and can cause extremely long wait times. This friction may obviously be resolved through upgraded hardware or cloud computing, but that results in higher operating costs for users. This project served as an opportunity test-drive various network architectures and features of neural networks to compare output, construction, and efficiency. Many of the models have infinite ways to be approached for improvmenets.
+# Create environment
+python -m venv venv
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Download data from Kaggle and extract to data/
+```
+
+## Usage
+
+Open `notebooks/model_exploration.ipynb` to see all experiments, or use the modules directly:
+
+```python
+from src.data_loader import load_data
+from src.models import build_cnn, build_efficientnet
+
+# Load data
+train_gen, val_gen, test_gen = load_data('data/C-NMC_Leukemia')
+
+# Train a model
+model = build_cnn(filters=32)
+model.fit(train_gen, validation_data=val_gen, epochs=10)
+```
+
+## Future Improvements
+
+- Data augmentation to reduce EfficientNet overfitting
+- Class balancing / weighted loss functions
+- Grad-CAM visualizations to interpret predictions
+- Hyperparameter tuning with cross-validation
+- Test on held-out patient data (not just held-out images)
+
+## License
+
+This project is for educational purposes. The dataset is from [The Cancer Imaging Archive](https://wiki.cancerimagingarchive.net/).
